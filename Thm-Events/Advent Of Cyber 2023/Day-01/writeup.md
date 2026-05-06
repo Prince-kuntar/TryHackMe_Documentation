@@ -1,3 +1,5 @@
+[🏠 Back to Event](../README.md)
+
 # 🎄 Day 01: Chatbot,tell me,if you're really safe?
 
 > Category: AI / Web Security
@@ -71,17 +73,8 @@ The chatbot was vulnerable to **prompt injection**, allowing sensitive data extr
 
 ## 🔗 Navigation
 
-⬅️ Previous: N/A  
-➡️ Next: [Day 02 - O Data, All Ye Faithful](../Day-02/writeup.md)
-
----
-
----
-
-## 🔗 Navigation
-
 | ⬅️ Previous | ➡️ Next |
 |------------|--------|
-| N/A | [Day 02](../Day-02/writeup.md) |
+| N/A | [Day 02 - O Data, All Ye Faithful](../Day-02/writeup.md) |
 
 ---
