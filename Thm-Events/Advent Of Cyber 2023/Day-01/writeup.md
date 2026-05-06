@@ -75,3 +75,13 @@ The chatbot was vulnerable to **prompt injection**, allowing sensitive data extr
 ➡️ Next: [Day 02 - O Data, All Ye Faithful](../Day-02/writeup.md)
 
 ---
+
+---
+
+## 🔗 Navigation
+
+| ⬅️ Previous | ➡️ Next |
+|------------|--------|
+| N/A | [Day 02](../Day-02/writeup.md) |
+
+---
