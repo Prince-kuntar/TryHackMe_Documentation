@@ -50,40 +50,44 @@ This repository begins from this point as a structured record of my continued of
 ## 🗂️ Repository Structure
 
 This repository is organized to reflect both **difficulty progression** and **real-world offensive security workflows**.
-
+```
 📁 THM-Legend-Playbook/
 │
 ├── 📁 Rooms/
-│ ├── 📁 Easy/
-│ ├── 📁 Medium/
-│ ├── 📁 Hard/
-│ └── 📁 Insane/
+│   ├── 📁 Easy/
+│   ├── 📁 Medium/
+│   ├── 📁 Hard/
+│   └── 📁 Insane/
 │
 ├── 📁 Events/
-│ └── 📁 Advent-of-Cyber-2023/
-│     ├── Day-01/
-│     ├── Day-02/
-│     └── README.md
-| └── 📁 Advent-of-Cyber-2025/
-|     ├── Day-01/
-|     ├── Day-02/
-|     ├── .../
-|     └── README.md
-|
+│   ├── 📁 Advent-of-Cyber-2023/
+│   │   ├── Day-01/
+│   │   ├── Day-02/
+│   │   └── README.md
+│   │
+│   └── 📁 Advent-of-Cyber-2025/
+│       ├── Day-01/
+│       ├── Day-02/
+│       ├── ...
+│       └── README.md
 │
 ├── 📁 Cheatsheets/
-│ ├── Enumeration.md
-│ ├── Linux-PrivEsc.md
-│ ├── Windows-PrivEsc.md
-│ └── Web-Exploitation.md
+│   ├── Enumeration.md
+│   ├── Linux-PrivEsc.md
+│   ├── Windows-PrivEsc.md
+│   └── Web-Exploitation.md
 │
 ├── 📁 Tools/
-│ ├── Nmap.md
-│ ├── BurpSuite.md
-│ └── Metasploit.md
+│   ├── Nmap.md
+│   ├── BurpSuite.md
+│   └── Metasploit.md
 │
 └── 📁 Templates/
-└── Room-Writeup-Template.md
+    └── Room-Writeup-Template.md
+
+```
+
+
 
 
 
