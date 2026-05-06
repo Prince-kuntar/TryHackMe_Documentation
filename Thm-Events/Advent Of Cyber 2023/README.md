@@ -15,7 +15,7 @@ Each day focuses on a different cybersecurity concept and practical challenge.
 
 | Day | Challenge        | Category             | Status |
 | --- | ---------------- | -------------------- | ------ |
-| 01  | Day 01 Challenge | Intro / OSINT        | ⏳      |
+| 01  | Chatbot,tell me,if you're really safe? | Intro / OSINT        | ✅      |
 | 02  | Day 02 Challenge | Web Exploitation     | ⏳      |
 | 03  | Day 03 Challenge | Web Exploitation     | ⏳      |
 | 04  | Day 04 Challenge | Cryptography         | ⏳      |
