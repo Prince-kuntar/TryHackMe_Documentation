@@ -13,8 +13,6 @@ Each day focuses on a different cybersecurity concept and practical challenge.
 
 ## 📊 Progress Tracker
 
-## 📊 Progress Tracker
-
 | Day | Challenge        | Category             | Status |
 | --- | ---------------- | -------------------- | ------ |
 | 01  | Day 01 Challenge | Intro / OSINT        | ⏳      |
