@@ -44,8 +44,8 @@ The dataset was analyzed using Pandas inside the provided Jupyter Notebook.
 
 ### Total Packets Captured
 
-```python id="x2h4da"
-df.count()
+```python id="b4x92f"
+df["PacketNumber"].count()
 ```
 
 **Answer:** `100`
@@ -54,8 +54,8 @@ df.count()
 
 ### IP Address with Most Traffic
 
-```python id="f9v8lm"
-df.groupby(['Source']).size()
+```
+df["Source"].value_counts()
 ```
 
 **Answer:** `10.10.0.1`
@@ -64,11 +64,21 @@ df.groupby(['Source']).size()
 
 ### Most Frequent Protocol
 
-```python id="u3nm0r"
+```
 df["Protocol"].value_counts()
 ```
 
 **Answer:** `ICMP`
+
+---
+
+## 🧾 Code
+
+The full notebook/code used for this challenge can be found here:
+
+```
+./Workbook.ipynb
+```
 
 ---
 
@@ -102,12 +112,13 @@ df["Protocol"].value_counts()
 
 ---
 
+
 ---
 
 ## 🔗 Navigation
 
 | ⬅️ Previous | ➡️ Next |
 |------------|--------|
-| [Day 01 - Chatbot,tell me,if you're really safe?](../Day-01/writeup.md) | [Day 02 - O Data, All Ye Faithful](../Day-02/writeup.md) |
+| [Day 01 - Chatbot,tell me,if you're really safe?](../Day-01/writeup.md) | [Day 03 - Hydra is Coming to Town](../Day-03/writeup.md) |
 
 ---
