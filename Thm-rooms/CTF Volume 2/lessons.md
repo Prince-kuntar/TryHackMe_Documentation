@@ -1,4 +1,4 @@
-````md id="4z9g1h"
+
 # 🧠 Lessons Learned — CTF Collection Vol.2
 
 This room covered multiple practical web exploitation concepts commonly encountered during CTFs, penetration tests, and bug bounty hunting.
@@ -93,7 +93,6 @@ Manipulating cookies like:
 
 ```txt id="gf0d8s"
 Invited=1
-````
 
 granted access to hidden functionality.
 
