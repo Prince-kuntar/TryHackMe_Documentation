@@ -1,0 +1,290 @@
+#Name:CTF collection Vol.2
+#Description: Sharpening up your CTF skill with the collection. The second volume is about web-based CTF.
+#Difficulty: Medium
+#Category: Web
+
+#Author note:Welcome, welcome and welcome to another CTF collection. This is the second installment of the CTF collection series. For your information, the second serious focuses on the web-based challenge. 
+There are a total of 20 easter eggs a.k.a flags can be found within the box. Let see how good is your CTF skill.
+
+Lets get to work!
+
+#Easter 1
+1.navigated to: http://10.114.190.139/robots.txt to check robots.txt contents and found
+
+User-agent: * (I don't think this is entirely true, DesKel just wanna to play himself)
+Disallow: /VlNCcElFSWdTQ0JKSUVZZ1dTQm5JR1VnYVNCQ0lGUWdTU0JFSUVrZ1p5QldJR2tnUWlCNklFa2dSaUJuSUdjZ1RTQjVJRUlnVHlCSklFY2dkeUJuSUZjZ1V5QkJJSG9nU1NCRklHOGdaeUJpSUVNZ1FpQnJJRWtnUlNCWklHY2dUeUJUSUVJZ2NDQkpJRVlnYXlCbklGY2dReUJDSUU4Z1NTQkhJSGNnUFElM0QlM0Q=
+
+
+45 61 73 74 65 72 20 31 3a 20 54 48 4d 7b 34 75 37 30 62 30 37 5f 72 30 6c 6c 5f 30 75 37 7d
+
+2.fired up cyberchef to decode and see what it is
+find out this: VlNCcElFSWdTQ0JKSUVZZ1dTQm5JR1VnYVNCQ0lGUWdTU0JFSUVrZ1p5QldJR2tnUWlCNklFa2dSaUJuSUdjZ1RTQjVJRUlnVHlCSklFY2dkeUJuSUZjZ1V5QkJJSG9nU1NCRklHOGdaeUJpSUVNZ1FpQnJJRWtnUlNCWklHY2dUeUJUSUVJZ2NDQkpJRVlnYXlCbklGY2dReUJDSUU4Z1NTQkhJSGNnUFElM0QlM0Q= was a multilayered base64 encoded string that decoded to 'DesKel_secret_base' ,and it wasnt a easter 1
+moved on to the second string which was hex and it decoded to Easter 1: THM{4u70b07_r0ll_***} and Hooray there was Easter 1.
+
+#Easter 2
+The multidecoded string i found during easter 1 search was under Disallow: in the robots.txt so i visted the page: http://10.114.190.139/DesKel_secret_base/
+there was nothing at the page, i visted the source code:
+<html>
+	<head>
+		<title> A slow clap for you</title>
+		<h1 style="text-align:center;">A slow clap for you</h1>
+	</head>
+	
+	<body>
+	<p style="text-align:center;"><img src="kim.png"/></p>
+	<p style="text-align:center;">Not bad, not bad.... papa give you a clap</p>
+	<p style="text-align:center;color:white;">Easter 2: THM{f4ll3n_b***}</p>
+	</body>
+
+</html>
+and there was easter 2
+
+#Easter 3
+checking the hint it said: Directory buster with common.txt might help.
+
+so i run the command:
+gobuster dir -u http://10.114.190.139/ -w /usr/share/wordlists/dirb/common.txt -t 50
+===============================================================
+Gobuster v3.8
+by OJ Reeves (@TheColonial) & Christian Mehlmauer (@firefart)
+===============================================================
+[+] Url:                     http://10.114.190.139/
+[+] Method:                  GET
+[+] Threads:                 50
+[+] Wordlist:                /usr/share/wordlists/dirb/common.txt
+[+] Negative Status codes:   404
+[+] User Agent:              gobuster/3.8
+[+] Timeout:                 10s
+===============================================================
+Starting gobuster in directory enumeration mode
+===============================================================
+/.htpasswd            (Status: 403) [Size: 291]
+/.hta                 (Status: 403) [Size: 286]
+/.htaccess            (Status: 403) [Size: 291]
+/button               (Status: 200) [Size: 39148]
+/cgi-bin/             (Status: 403) [Size: 290]
+/cat                  (Status: 200) [Size: 62048]
+/iphone               (Status: 200) [Size: 19867]
+/index.php            (Status: 200) [Size: 94328]
+/index                (Status: 200) [Size: 94328]
+/login                (Status: 301) [Size: 316] [--> http://10.114.190.139/login/]
+/robots               (Status: 200) [Size: 430]
+/robots.txt           (Status: 200) [Size: 430]
+/server-status        (Status: 403) [Size: 295]
+/small                (Status: 200) [Size: 689]
+/static               (Status: 200) [Size: 253890]
+Progress: 4612 / 4613 (99.98%)[ERROR] error on word who: timeout occurred during the request
+Progress: 4613 / 4613 (100.00%)
+===============================================================
+Finished
+===============================================================
+
+visted the login page and then inspected the source code ,voila there was Easter 3
+<!DOCTYPE html PUBLIC"-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"
+<html>
+
+	<head>
+		<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+		<meta content="utf-8" http-equiv="encoding">
+		<p hidden>Seriously! You think the php script inside the source code? Pfff.. take this easter 3: THM{y0u_c4n'7_533_m3}</p> 
+		<title>Can you find the egg?</title>
+		<h1>Just an ordinary login form!</h1>
+	</head>
+	
+	<body>
+		
+		<p>You don't need to register yourself</p><br><br>
+		<form method='POST'>
+			Username:<br>
+			<input type="text" name="username" required>
+			<br><br>
+			Password:<br>
+			<input type="text" name="password" required>
+			<br><br>
+			<button name="submit" value="submit">Login</button>
+		</form>
+
+		
+
+Username not found	</body>
+</html>
+
+#Easter 4
+Got hinted: Time-based sqli
+soo
+1. used burpsuit to intercept the request of the login page and save it to file names vol2.xml
+2. used sqlmap command: sqlmap -r vol2.xml --current-db . found the database was MySQL and current database: 'THM_f0und_m3'
+3.run the command sqlmap -r vol2.xml -D THM_f0und_m3 --tables --dump to enumerate tables and found two tables:Database: THM_f0und_m3
+[2 tables]
++----------------+
+| user           |
+| nothing_inside |
++----------------+
+
+4. nothing_inside caught my eye so i run the command: sqlmap -r vol2.xml -D THM_f0und_m3 -T nothing_inside --dump. and that dumped the easter 4 for me: +-------------------------+
+| Easter_4                |
++-------------------------+
+| THM{1nj3c7_l1k3_4_b055} |
++-------------------------+
+
+#Easter 19
+while i was waiting for sqlmqp finish i went back the gobuster earlier scan results and tried directories and when i visited: http://10.114.190.139/small
+i got a png with an easter on it.
+
+#Easter 6
+run curl -s http://10.114.190.139 -D data.txt
+and the cat data.txt . Easter 6 was in there
+
+#Easter 16
+1.intercepted the request with burp. the request was:
+POST /game2/ HTTP/1.1
+
+Host: 10.114.190.139
+
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0
+
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+
+Accept-Language: en-US,en;q=0.5
+
+Accept-Encoding: gzip, deflate, br
+
+Content-Type: application/x-www-form-urlencoded
+
+Content-Length: 29
+
+Origin: http://10.114.190.139
+
+Connection: keep-alive
+
+Referer: http://10.114.190.139/game2/
+
+Cookie: Invited=0
+
+Upgrade-Insecure-Requests: 1
+
+Priority: u=0, i
+
+
+
+button1=button1&submit=submit
+
+2.changed it to:
+POST /game2/ HTTP/1.1
+
+Host: 10.114.190.139
+
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0
+
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+
+Accept-Language: en-US,en;q=0.5
+
+Accept-Encoding: gzip, deflate, br
+
+Content-Type: application/x-www-form-urlencoded
+
+Content-Length: 29
+
+Origin: http://10.114.190.139
+
+Connection: keep-alive
+
+Referer: http://10.114.190.139/game2/
+
+Cookie: Invited=0
+
+Upgrade-Insecure-Requests: 1
+
+Priority: u=0, i
+
+
+
+button1=button1&button2=button2&button3=button3&submit=submit
+
+3.forwaded the request and the egg was included in the request
+
+#Easter 7 
+changed the cookie value from 0 to 1 in the browser developer options under storage tab
+2.reloaded the page displayed the easter 7
+
+#Easter 8
+user-agent spoofing
+The hint hinted a different type of user agent. it was apparent that it was about user-agent header tampering
+
+1.this could be done using burp by capturing the request and change the user-agent value like : user-agent: Mozilla/5.0 (iPhone; CPU iPhone OS 13_1_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.1 Mobile/15E148 Safari/604.1
+or using a terminal tool 'Curl' by specifing the user-agent using -A flag.
+2. The terminal solution was easier and fast so used curl by runing the command 'curl -A "Mozilla/5.0 (iPhone; CPU iPhone OS 13_1_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.1 Mobile/15E148 Safari/604.1" http://10.113.165.144/
+'
+3. after inspecting the output Easter 8 was found
+
+#easter 9
+after clicking a button the app was navigating to : http://10.113.165.144/ready/
+and then instantly redirect to: http://10.113.165.144/ready/gone.php
+the hint said someting is moving fast
+
+1.opened a new tab and attemoted to view the source code of the first page by appending 'view-source' to the url as: view-source:http://10.113.165.144/ready/
+2.inspecting the source code, Easter 9 was right there
+
+#Easter 10
+easter 10 was about refferer HTTP header spoofing. All that was to be done was to spoof the referer to "tryhackme.com"
+1. againg this could be done with either burpsuite or curl but  used curl
+2. the command : curl -e "tryhackme.com" http://10.113.165.144/free_sub/ was run
+3.inspecting the response, Easter was there
+
+#Easter 15
+easter was about alphabet gguessing and hashes
+
+#easter 17 was about converting a string from binary to decimal then from decimal to hex ,and from hex to string that gave Easter 17
+
+for that chatGPT was used and it decoded the Easter well as using the prompt : 
+"Take the following binary string and:
+
+1. Split it into 8-bit bytes
+2. Convert each byte to decimal
+3. Convert each byte to hexadecimal
+4. Convert the hexadecimal values to ASCII text
+5. Show every step clearly in a table
+6. Identify any non-printable characters
+
+Binary:
+00010101100001011100110111010001100101011100100010000000110001001101110011101000100000010101000100100001001101011110110110101000110101010111110110101000110101010111110110101100110011011100000101111101100100001100110110001100110000011001000011001101111101"
+
+
+#Easter 11
+Easter 11 was about tampering with post data by posting something that was not on the dropdown menu in the HTML
+1.used burpsuite to intercept the request
+2.sent the request to burp repeater 
+3. changed the data to 'egg' which was never on the menu and sent the request
+4.inspected the request and Easter was there
+
+#Easter 12
+got hinted "fake js"
+so..
+1.viewed the page source by visiting: view-source:http://10.113.165.144/
+2. then i saw:
+3. clicked on it and it took me to: view-source:http://10.113.165.144/jquery-9.1.2.js
+4. inspecting the code i saw a string that looked like hex string: str1 = '4561737465722031322069732054484d7b68316464336e5f6a355f66316c337d'
+5. decoded it using cyber chef and it gave easter 12
+
+#easter 14: 
+i didn't know what to do to find easter 14 despite the hint "embeded image code" so i looked up the internet and found a write up at: https://5kullk3r.medium.com/ctf-collection-volume-2-40ec94e5c7d3 and got help. the instruction was :
+1. copy the whole base64 string and paste in cyberchef
+2.add two recipes ,1. from BASE64 and RENDER IMAGE(i didnt know cyberchef has and could do this)
+3.clicked on bake and image got renderd and there was easter 14.
+
+#easter 18
+easter 18 was about tampering with Http headers by adding a malicious header 'egg:yes'
+1. intercepted the a request with burp and added a headerb 'Egg:yes'
+2.forwarded the request and visting the page again easter 18 was displayed right on the page
+
+#easter 20
+this was about posting credentials using POST not GET method so.
+1. intercepted a POST request
+2. added post data 'username=DesKel&password=heIsDumb'
+3.forwaded the request and visting the page again easter 20 was displated right on the page
+
+
+####lessons
+will be in separate file
