@@ -1,0 +1,281 @@
+#day 7
+#CHALLENGE: tis the season for log chopping
+#TOPIC: Log analysis
+#THe stoty
+  To take revenge for the company demoting him to regional manager during the acquisition, Tracy McGreedy installed the CrypTOYminer, a malware he downloaded from    the dark web, on all workstations and servers. Even more worrying and unknown to McGreedy, this malware includes a data-stealing functionality, which the malware author benefits from! The malware has been executed, and now, a lot of unusual traffic is being generated. What's more, a large bandwidth of data is seen to be leaving the network.Forensic McBlue assembles a team to analyse the
+logs and understand the suspicious network traffic.
+
+
+#Learning objectives
+  Revisiting log files and their importance.
+  Understanding what a proxy is and breaking down the contents of a proxy log.
+  Building linux command-line skills to parse log entries manually.
+  Analysing a proxy log based on typical use cases.
+  
+#WHAT IS A LOG
+ is a digital trail of what happens with a computer system or application behind the scenes. it recodes important evemts, errors, actions e.t.c
+ 
+#WHAT IS A PROXY SERVER
+in simple terms a proxy server is an intermediary between internal system and the internet
+
+A proxy server offers enhanced visibility into network traffic and user activities, since it logs all web requests and responses. This enables system administrators and security analysts to monitor which websites users access, when, and how much bandwidth is used. It also allows administrators to enforce policies and block specific websites or content categories.
+
+
+#ExAMPLES OF MALICIOUS ACTIVITIES
+1. Malware downloading - Connection to a known malicious URL binary (e.g. www[.]evil[.]com/malicious[.]exe)
+2. Data exfiltrations - High count of outbound bandwidth due to file upload (e.g. outbound connection to OneDrive)
+3. C2 Beaconing - High count of outbound connections to a single domain in regular intervals (e.g. connections every five minutes to a single domain)
+
+
+###########################################
+#ON TO WORK
+
+The VM contains a proxy log file in the /home/ubuntu/Desktop/artefacts directory named access.log
+
+ubuntu@tryhackme:~/Desktop$ cd artefacts/
+ubuntu@tryhackme:~/Desktop/artefacts$ ls
+access.log
+
+
+#tools
+1. cat-Short for concatenate, allows to combine and display the contents of multiple files. 
+2. less: The less command allows to view the contents of a file one page at a time.
+3. head: The head command lets you view the contents at the top of the file
+4. tail: In contrast to the head command, the tail command allows you to view the end of the file easily
+5. wc: The wc command stands for word count. It's a command-line tool that counts the number of lines, words, and characters in a text file.
+6. nl: The nl command stands for number lines. It renders the contents of the file in a numbered line format.
+7. cut: allows you to extract specific sections (columns) of lines from a file or input stream by "cutting" the line into columns based on a delimiter and selecting which columns to display. This can be done using the -d option (for delimiter) and the -f for position.
+
+This can be done using the -d option (for delimiter) and the -f for position. The example below uses space (' ') as its delimiter and only displays the timestamp (column #1 after cutting the log with space).
+
+'cut' example:
+ubuntu@tryhackme:~/Desktop/artefacts$ cut -d ' ' -f 1,3,6 access.log
+
+[2023/10/25:16:17:13] www.globalsign.com:443 200
+[2023/10/25:16:17:13] passwordreset.microsoftonline.com:443 200
+[2023/10/25:16:17:13] passwordreset.microsoftonline.com:443 200
+[2023/10/25:16:17:14] ocsp.digicert.com:80 200
+[2023/10/25:16:17:14] storage.live.com:443 200
+[2023/10/25:16:17:14] storage.live.com:443 400
+
+8. Grep: Grep is a command in Linux that is used for searching text within files or input streams. It typically follows the syntax: grep OPTIONS STRING_TO_SEARCH FILE_NAME.
+
+
+
+#CHOPPING DOWN THE PROXY LOG
+
+Log Format: timestamp - source_ip - domain:port - http_method - http_uri - status_code - response_size - user_agent
+
+#linux pipes
+
+In Linux or Unix-like operating systems, a pipe (or the "|" character) is a way to connect two or more commands to make them work together seamlessly.
+It allows to use the output of one command as input for another
+
+##piping example
+1.Get the first five connections made by 10.10.140.96.
+
+ubuntu@tryhackme:~/Desktop/artefacts$ grep 10.10.140.96 access.log | cut -d ' ' -f 2,3,5 | head -n 5
+10.10.140.96 flow.microsoft.com:443 -
+10.10.140.96 flow.microsoft.com:443 /
+10.10.140.96 make.powerautomate.com:443 -
+10.10.140.96 make.powerautomate.com:443 /
+10.10.140.96 o15.officeredir.microsoft.com:443 -
+
+2. Get the list of unique domains accessed by all workstations.
+  To do this, we'll combine the sort and uniq commands with the cut command.
+
+Sort is a Linux command used to sort the lines of text files or input streams in ascending or descending order, while the uniq command allows you to filter out and display unique lines from a sorted file or input stream. 
+
+ubuntu@tryhackme:~/Desktop/artefacts$ cut -d ' ' -f 3 access.log| cut -d ':' -f1 | sort | uniq
+account.activedirectory.windowsazure.com
+activity.windows.com
+admin.microsoft.com
+admin.onedrive.com
+adminwebservice.microsoftonline.com
+ajax.aspnetcdn.com
+api.passwordreset.microsoftonline.com
+appex.bing.com
+appsforoffice.microsoft.com
+
+
+3. Display the connection count made on each domain.
+
+ubuntu@tryhackme:~/Desktop/artefacts$ cut -d ' ' -f 3 access.log| cut -d ':' -f1 | sort | uniq -c
+    423 account.activedirectory.windowsazure.com
+    184 activity.windows.com
+    680 admin.microsoft.com
+    272 admin.onedrive.com
+    304 adminwebservice.microsoftonline.com
+    300 ajax.aspnetcdn.com
+
+##Hunting Down the Malicious Traffic
+
+1.  list the top domains accessed by the users and see if the users accessed any unusual domains.
+
+ubuntu@tryhackme:~/Desktop/artefacts$ cut -d ' ' -f 3 access.log| cut -d ':' -f1 | sort | uniq -c | sort | tail -n 10
+    606 docs.microsoft.com
+    622 smtp.office365.com
+    680 admin.microsoft.com
+    850 c.bing.com
+    878 outlook.office365.com
+   1554 learn.microsoft.com
+   1581 frostlings.bigbadstash.thm
+   1860 www.globalsign.com
+   4695 login.microsoftonline.com
+   4992 www.office.com
+checking the list only 'frostlings.bigbadstash.thm' is suspicious
+
+2. use 'frostlings.bigbadstash.thm' domain with the grep and head commands to retrieve the first 10 connections made to it.
+
+ubuntu@tryhackme:~/Desktop/artefacts$ grep frostlings.bigbadstash.thm access.log | head -n 10
+[2023/10/25:15:56:29] 10.10.185.225 frostlings.bigbadstash.thm:80 GET /storage.php?goodies=aWQscmVjaXBpZW50LGdp 200 362 "Go-http-client/1.1"
+[2023/10/25:15:56:29] 10.10.185.225 frostlings.bigbadstash.thm:80 GET /storage.php?goodies=ZnQKZGRiZTlmMDI1OGE4 200 362 "Go-http-client/1.1"
+[2023/10/25:15:56:29] 10.10.185.225 frostlings.bigbadstash.thm:80 GET /storage.php?goodies=MDRjOGExNWNmNTI0ZTMy 200 362 "Go-http-client/1.1"
+[2023/10/25:15:56:30] 10.10.185.225 frostlings.bigbadstash.thm:80 GET /storage.php?goodies=ZTE3ODUsTm9haCxQbGF5 200 362 "Go-http-client/1.1"
+[2023/10/25:15:56:30] 10.10.185.225 frostlings.bigbadstash.thm:80 GET /storage.php?goodies=IENhc2ggUmVnaXN0ZXIK 200 362 "Go-http-client/1.1"
+[2023/10/25:15:56:30] 10.10.185.225 frostlings.bigbadstash.thm:80 GET /storage.php?goodies=Y2I1OTdkNjlkODNmMjRj 200 362 "Go-http-client/1.1"
+[2023/10/25:15:56:31] 10.10.185.225 frostlings.bigbadstash.thm:80 GET /storage.php?goodies=NzViMmEyZDcyOTg3MDVl 200 362 "Go-http-client/1.1"
+[2023/10/25:15:56:31] 10.10.185.225 frostlings.bigbadstash.thm:80 GET /storage.php?goodies=ZDcsV2lsbGlhbSxUb3kg 200 362 "Go-http-client/1.1"
+[2023/10/25:15:56:31] 10.10.185.225 frostlings.bigbadstash.thm:80 GET /storage.php?goodies=UGlyYXRlIEhhdAo0ODI0 200 362 "Go-http-client/1.1"
+[2023/10/25:15:56:32] 10.10.185.225 frostlings.bigbadstash.thm:80 GET /storage.php?goodies=ZmI2OGZlNjMxNDZhYWJj 200 362 "Go-http-client/1.1"
+
+Upon checking the list of requests made to the 'frostlings.bigbadstash.thm' domain, we see something unusual with the string passed to the goodies parameter.
+
+3.Let's try to retrieve the data by cutting the request URI with equals (=) as its delimiter.
+
+ubuntu@tryhackme:~/Desktop/artefacts$ grep frostlings.bigbadstash.thm access.log |cut -d ' ' -f 5 | cut -d '=' -f2
+  ....
+YzlmMzRlMWYwMGEwMjRh
+OWMsQmVuamFtaW4sUmFj
+ZWNhciBUcmFjayBTZXQK
+ZGUyZmI3YzVkMDQzMTI5
+Y2IxNDRiMTVlYmIyYTY4
+MTIsTHVjYXMsUGxheS1E
+b2ggSWNlIENyZWFtIFNl
+dAo0MTNkMzQxMzlhN2Yz
+MmEyMTJjNzk2MmMyOTdi
+NTdiNSxMb2dhbixBaXJw
+bGFuZSBNb2RlbCBLaXQK
+
+Based on the format, the data sent seems to be encoded with Base64
+
+4. pipe the output to base64 to decode
+
+ubuntu@tryhackme:~/Desktop/artefacts$ grep frostlings.bigbadstash.thm access.log |cut -d ' ' -f 5 | cut -d '=' -f2 | base64 -d
+id,recipient,gift
+ddbe9f0258a804c8a15cf524e32e1785,Noah,Play Cash Register
+cb597d69d83f24c75b2a2d7298705ed7,William,Toy Pirate Hat
+4824fb68fe63146aabc3587f8e12fb90,Charlotte,Play-Doh Bakery Set
+f619a90e1fdedc23e515c7d6804a0811,Benjamin,Soccer Ball
+ce6b67dee0f69a384076e74b922cd46b,Isabella,DIY Jewelry Kit
+939481085d8ac019f79d5bd7307ab008,Lucas,Building Construction Blocks
+f706a56dd55c1f2d1d24fb
+
+....
+
+#QUESTIONS
+1. How many unique IP addresses are connected to the proxy server
+ ##command
+ ubuntu@tryhackme:~/Desktop/artefacts$ cut -d ' ' -f 2 access.log |sort | uniq | wc -l
+9
+ ##answer
+ 9
+####################################################################################
+2. How many unique domains were accessed by all workstations?
+  ##command
+  ubuntu@tryhackme:~/Desktop/artefacts$ cut -d ' ' -f3 access.log |cut -d ':' -f1|sort|uniq -c|wc -l
+111
+
+  ##answer
+  111
+
+####################################################################################
+3. What status code is generated by the HTTP requests to the least accessed domain?
+ ##command
+ 
+ ubuntu@tryhackme:~/Desktop/artefacts$ cut -d ' ' -f 3 access.log | cut -d ':' -f1 | sort | uniq -c | sort -n | head -n 5
+     78 partnerservices.getmicrosoftkey.com
+    113 mcgreedysecretc2.thm
+    118 ocsp.digicert.com
+    123 officeclient.microsoft.com
+    128 ocspx.digicert.com
+ubuntu@tryhackme:~/Desktop/artefacts$ grep partnerservices.getmicrosoftkey.com access.log | cut -d ' ' -f 6
+503
+503
+503
+503
+503
+
+## answer
+ 503
+ ####################################################################################
+ 4. Based on the high count of connection attempts, what is the name of the suspicious domain?
+  ##command
+  
+  ubuntu@tryhackme:~/Desktop/artefacts$ cut -d ' ' -f 3 access.log| cut -d ':' -f1 | sort | uniq -c | sort | tail -n 10
+    606 docs.microsoft.com
+    622 smtp.office365.com
+    680 admin.microsoft.com
+    850 c.bing.com
+    878 outlook.office365.com
+   1554 learn.microsoft.com
+   1581 frostlings.bigbadstash.thm
+   1860 www.globalsign.com
+   4695 login.microsoftonline.com
+   4992 www.office.com
+   
+  ##answer
+  
+  frostlings.bigbadstash.thm
+ 
+####################################################################################
+5. What is the source IP of the workstation that accessed the malicious domain?
+
+ ##command
+
+ubuntu@tryhackme:~/Desktop/artefacts$ grep frostlings.bigbadstash.thm access.log | cut -d ' ' -f 2 | head -n 10
+10.10.185.225
+10.10.185.225
+10.10.185.225
+10.10.185.225
+10.10.185.225
+10.10.185.225
+10.10.185.225
+10.10.185.225
+10.10.185.225
+10.10.185.225
+
+ ##answer
+ 10.10.185.225
+
+
+
+####################################################################################
+6.How many requests were made on the malicious domain in total?
+
+##command
+From  Q4 command output
+
+##answer
+1581
+
+####################################################################################
+ 
+7. Having retrieved the exfiltrated data, what is the hidden flag?
+ ##command
+ubuntu@tryhackme:~/Desktop/artefacts$ grep frostlings.bigbadstash.thm access.log |cut -d ' ' -f 5 | cut -d '=' -f2 | base64 -d | grep THM{
+72703959c91cb18edbefedc692c45204,SOC Analyst,THM{a_gift_for_you_awesome_analyst!}
+ ##answer
+THM{a_gift_for_you_awesome_analyst!} 
+
+
+
+
+
+
+
+
+
+
+ 
+  
