@@ -1,0 +1,70 @@
+#DAY 8 AOC2023
+#ROOM RARING : EASY
+#CHALLENGE TITLE: Have a holly, jolly byte!
+#CATEGORY: Disk Foresincs
+
+#STORY:
+The drama unfolds as the Best Festival Company and AntarctiCrafts merger wraps up! Tracy McGreedy, now a grumpy regional manager, secretly plans sabotage. His sidekick, Van Sprinkles, hesitantly kicks off a cyber attack – but guess what? Van Sprinkles is having second thoughts and helps McSkidy's team bust McGreedy's evil scheme! 
+
+Van Sprinkles, wrestling with his conscience, scatters USB drives loaded with malware. Little do the AntarctiCrafts employees know, a storm's brewing in their network.
+
+Van Jolly, shivering and clueless, finds a USB drive in the parking lot. Little does she know that plugging it in will unleash a digital disaster crafted by the vengeful McGreedy. But this is exactly what she does.Upon reaching her desk, she immediately plugs in the USB drive. 
+
+Amidst the digital chaos of notifications and alerts from the cyber attack, McSkidy gets a cryptic email. It's Van Sprinkles, ridden with guilt, nudging her towards exposing McGreedy without blowing his own cover.
+
+McSkidy, with a USB in hand, reveals to Van Jolly the true nature of her innocent find – a tool for digital destruction! Shock and disbelief play across Van Jolly's face as McSkidy explains the gravity of the situation and the digital pandemonium unleashed upon their network by the insidious device.
+
+McSkidy, Forensic McBlue and the team, having confiscated the USB drive from Van Jolly, dive into a digital forensic adventure to unravel a web of deception hidden in the device. Every line of code has a story. McSkidy and the team piece it together, inching closer to the shadow in their network.
+
+#LEARNING OBJECTIVE
+Use FTK Imager to track down and piece together McGreedy's deleted digital breadcrumbs, exposing his evil scheme. Learn how to perform the following with FTK Imager:
+
+    1. Analyse digital artefacts and evidence.
+    2. Recover deleted digital artefacts and evidence.
+    3. Verify the of a drive/image used as evidence.
+ #TOOLS   
+#FTK IMAGER    
+FTK imager is a data preview and imaging tool used to acquire digital evidence in a forensically sound manner by creating copies of data without changing the original in any way.
+
+FTK Imager is a forensics tool that allows forensic specialists to acquire computer data and perform analysis without affecting the original evidence, preserving its authenticity, , and validity for presentation during a trial in a court of law. 
+
+#FTK Imager UI
+
+FTK Imager's interface is intuitive and user-friendly. It displays an "x" icon next to deleted files and includes key UI components vital for its functionality. These components are:
+
+    1. Evidence Tree pane: Displays a hierarchical view of the added evidence sources such as hard drives, flash drives, and forensic image files.
+    2. File List pane: Displays a list of files and folders contained in the selected directory from the evidence tree pane.
+    3. Viewer pane: Displays the content of selected files in either the evidence tree pane or the file list pane.
+
+#FTK Imager: Recovering Deleted Files and Folders
+
+To view and recover deleted files, expand directories in the File List pane and Evidence Tree pane. Right-click and select Export Files on individual files marked with an "x" icon or on entire directories/devices for bulk recovery of files (whether deleted or not). 
+
+
+#Questions
+1.What is the malware C2 server?
+ #mcgreedysecretc2.thm
+2.What is the file inside the deleted zip archive?
+answer: JuicyTomaTOY.exe
+
+3.What flag is hidden in one of the deleted PNG files?
+#search for a string 'THM{' in deleted potrait.png gave the flag THM{byt3-L3vel_@n4Lys15}
+
+answer: THM{byt3-L3vel_@n4Lys15}
+
+4.What is the SHA1 hash of the physical drive and forensic image?
+#verifying the disk we got SHA1  hash: 39f2dea6ffb43bf80d80f19d122076b3682773c2
+answer: 39f2dea6ffb43bf80d80f19d122076b3682773c2
+
+#################################################################################
+
+#lessons
+1.analysing file content whether deleted or not
+2. verifying disk or image integrity by calculating its checksum
+3.recovering deleted files and save them on the computer for futher analysis
+4. searching for patterns through file's content
+
+################################################################################
+This was very informative, moving on to a new DFIR ROom for further knowledge
+
+
