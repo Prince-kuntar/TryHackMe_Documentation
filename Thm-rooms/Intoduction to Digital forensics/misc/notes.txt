@@ -1,0 +1,90 @@
+#ROOM : Intro to Digital Forensics
+#desc : Learn about digital forensics and related processes and experiment with a practical example.
+
+#Task 1 : Intro to DF
+
+Forensics is the application of science to investigate crimes and establish facts.
+
+When crim scenes includes digital devices and media new questions arise. And they the following:
+
+
+    1. How should the police collect digital evidence, such as smartphones and laptops? What are the procedures to follow if the computer and smartphone are running?
+    2. How to transfer the digital evidence? Are there certain best practices to follow when moving computers, for instance?
+    3. How to analyze the collected digital evidence? Personal device storage ranges between tens of gigabytes to several terabytes; how can this be analyzed?
+    
+Digital forensics is the application of computer science to investigate digital evidence for a legal purpose.  
+
+Digital forensics is used in two types of investigations:
+
+1. Public-sector investigations refer to the investigations carried out by government and law enforcement agencies. They would be part of a crime or civil     investigation.
+2. Private-sector investigations refer to the investigations carried out by corporate bodies by assigning a private investigator, whether in-house or outsourced. They are triggered by corporate policy violations.
+
+2.Whether investigating a crime or a corporate policy violation, part of the evidence is related to digital devices and digital media.
+
+#DIGITAL FORENSICS PROCESS
+
+After getting the proper legal authorization, the basic plan goes as follows:
+
+1. Acquire the evidence: Collect the digital devices such as laptops, storage devices, and digital cameras. (Note that laptops and computers require special handling if they are turned on)
+Establish a Chain of Custody : Fill out the related form appropriately (Sample form (opens in new tab)). The purpose is to ensure that only the authorized investigators had access to the evidence and no one could have tampered with it.
+Place the evidence in a secure container : You want to ensure that the evidence does not get damaged. In the case of smartphones, you want to ensure that they cannot access the network, so they don’t get wiped remotely.
+Transport the evidence to your digital forensics lab.
+
+Now While at the lab:
+
+1. Retrieve the digital evidence from the secure container.
+2. Create a forensic copy of the evidence: The forensic copy requires advanced software to avoid modifying the original data.
+3. Return the digital evidence to the secure container : You will be working on the copy. If you damage the copy, you can always create a new one.
+4. Start processing the copy on your forensics workstation.
+
+#practical example
+
+###Document Metadata
+
+Everything we do on our digital devices, from smartphones to computers, leaves traces. Let’s see how we can use this in the subsequent investigation.
+
+1. Using pdfinfo, find out the author of the attached PDF file, ransom-letter.pdf.
+command :
+──(prince㉿VhagarT3rminal)-[~/TryHackMe/intro_t0_df]
+└─$ pdfinfo ransom-letter.pdf 
+Title:           Pay NOW
+Subject:         We Have Gato
+Author:          Ann Gree Shepherd
+Creator:         Microsoft® Word 2016
+Producer:        Microsoft® Word 2016
+CreationDate:    Wed Feb 23 03:10:36 2022 CST
+ModDate:         Wed Feb 23 03:10:36 2022 CST
+Custom Metadata: no
+Metadata Stream: yes
+Tagged:          yes
+UserProperties:  no
+Suspects:        no
+Form:            none
+JavaScript:      no
+Pages:           1
+Encrypted:       no
+Page size:       595.44 x 842.04 pts (A4)
+Page rot:        0
+File size:       71371 bytes
+Optimized:       no
+PDF version:     1.7
+
+answer : ann Gree Shepherd
+
+###Photo EXIF Data
+
+EXIF stands for Exchangeable Image File Format; it is a standard for saving metadata to image files. Whenever you take a photo with your smartphone or with your digital camera, plenty of information gets embedded in the image. The following are examples of metadata that can be found in the original digital images:
+
+    Camera model / Smartphone model
+    Date and time of image capture
+    Photo settings such as focal length, aperture, shutter speed, and ISO settings
+
+Because smartphones are equipped with a GPS sensor, finding GPS coordinates embedded in the image is highly probable. The GPS coordinates, i.e., latitude and longitude, would generally show the place where the photo was taken.
+
+#tools
+-exiftool
+
+
+
+
+  
