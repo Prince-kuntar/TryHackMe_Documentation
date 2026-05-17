@@ -1,0 +1,126 @@
+#ROOM : AOC2023
+#CHALLENGE: She sells C# by the C2shore
+
+#Story:
+
+Having retrieved the deleted version of the malware that allows Tracy McGreedy to control elves remotely, Forensic McBlue and his team have started investigating to stop the mind control incident. They are now planning to take revenge by analysing the 's back-end infrastructure based on the malware's source code.
+
+#Learning Objectives
+
+In this task, we will focus on the following vital learnings to assist Forensic McBlue in analysing the retrieved malware sample:
+
+    1.The foundations of analysing malware samples safely
+    2.The fundamentals of .NET binaries
+    3.The dnSpy tool for decompiling malware samples written in .NET
+    4.Building an essential methodology for analysing malware source code
+    
+================================================================================================
+##Malware Handling 101 
+
+handling malware is dangerous because it is software explicitly designed to cause harm, steal information, or compromise the security and functionality of computer systems.
+
+In other words to break the CIA Triad.
+
+Given this it is done in malware sandboxing.
+A  Sandbox is like a pretend computer setup that acts like a real one. It's a safe place for experts to test malware and see how it behaves without any danger. Having a sandbox environment is essential when conducting malware analysis because it stops experts from running malware on their actual work computers, which could be risky and harmful.
+
+A typical environment setup of a malware sandbox contains the following:
+
+    1.Network controls: Sandboxes often have network controls to limit and monitor the network traffic the malware generates. This also prevents the propagation of malware in any other assets.
+    2.Virtualisation: Many sandboxes use technologies like VMware, VirtualBox, or Hyper-V to run the malware in a controlled, isolated environment. This allows for easy snapshots, resets, and disposal after the analysis.
+    3.Monitoring and logging: Sandboxes record detailed logs of the malware's activities, including system interactions, network traffic, and file modification. These logs are invaluable for analysing and understanding the malware's behaviour.
+    
+    
+ ================================================================================================   
+.NET Compiled Binaries
+
+.NET binaries are compiled files containing code written in languages compatible with the .NET framework, such as C#, VB.NET, F#, or managed C++. These binaries are executable files (with the .exe extension) or dynamic link libraries (DLLs with the .dll extension). They can also be assemblies that contain multiple types and resources.
+
+================================================================================================   
+C2 Primer
+
+According to Forensic McBlue, the retrieved malware sample is presumed to be related to the organisation's remote mind control (over C2) incident.
+
+C2, or command and control, refers to a centralised system or infrastructure that malicious actors use to remotely manage and control compromised devices or systems. It serves as a channel through which attackers issue commands to compromised entities, enabling them to carry out various activities, such as data theft, surveillance, or further malware propagation.
+
+================================================================================================ 
+#Decompiling Malware Samples With dnSpy
+
+dnSpy is an open-source .NET assembly (C#) debugger and editor. It is typically used for reverse engineering .NET applications and analysing their code and is primarily designed for examining and modifying .NET assemblies in a user-friendly, interactive way. It's also capable of modifying the retrieved source code (editing), setting breakpoints, or running through the code one step at a time (debugging).
+
+================================================================================================ 
+
+#Understanding the Malware Functionalities
+
+1 GetIt
+
+Based on the source code, the GetIt function uses the WebRequest class from the System.Net namespace and is initialised by the function's URL argument. The name is already a giveaway that the WebRequest is being used to initiate an HTTP request to a remote URL.
+
+2. PostIt
+
+Like the GetIt function, the PostIt function also uses the WebRequest class. However, you might observe that it has configured more properties than the first one. The most notable is the Method property, wherein the value is set to POST. This means that the HTTP request made by this function is a POST request, and it submits the second argument as its POST data.
+
+3.Sleeper
+
+The Sleeper function only contains a single line: a call to the Thread.Sleep function. The Thread.Sleep function accepts an integer as its argument and makes the program pause (for milliseconds) based on the value passed to it.
+
+uses Thread.sleep function
+
+4. ExecuteCommand
+
+Given the namespace and class name (System.Diagnostics.Process) of the initialised Process class (first code line), it seems this function is being used to spawn a process, according to its Microsoft documentation (opens in new tab). From the initialisation of the ProcessStartInfo properties, we can also see that the file to be executed is cmd.exe and that the ExecuteCommand's argument (command variable) is being passed as a process argument.
+
+In short, the code snippet results to: cmd.exe /C COMMAND_VARIABLE.
+
+System.Diagnostics.Process code snippet
+
+Another thing to note is that the WindowStyle property is set to Process.WindowStyle.Hidden. This means that the process will run without a window. As such, it's a way to hide the malware's malicious command execution.
+
+This function serves as the malware's OS command execution function.
+
+5.Encryptor
+the Encryptor function accepts an argument and encrypts it using the hardcoded KEY and IV values. And lastly, it encodes the encrypted bytes into Base64 using the Convert.ToBase64String function.
+
+In summary, the function encrypts a plaintext string using an AES cipher (together with the key and IV values) and returns the encoded Base64 value of the encrypted version of the string.
+
+6. Decryptor
+
+This function is the opposite of the Encryptor function, which expects a Base64 string, decodes it, and proceeds to the decryption to retrieve the plaintext string.
+
+7.Implant
+
+The last function is the Implant function. It accepts a URL string as its argument, initiates an HTTP request to the URL argument, and decodes it with Base64. It also retrieves the APPDATA path and attempts to write the contents of the Base64 decoded data into a file. Lastly, if the implanted file was written successfully, it returns its location. If not, it returns an empty string.
+
+In the context of malware functions, the Implant function is a dropper function. This means it downloads and stores other malware inside the compromised machine.
+
+
+#quetions
+
+1.What HTTP User-Agent was used by the malware for its connection requests to the C2 server?
+answer: Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15
+
+2.What is the HTTP method used to submit the command execution output?
+answer: POST
+
+3. What key is used by the malware to encrypt or decrypt the C2 data?
+answer: youcanthackthissupersecurec2keys
+
+4.What is the first HTTP URL used by the malware?
+answer: http://mcgreedysecretc2.thm/reg
+
+5.How many seconds is the hardcoded value used by the sleep function?
+answer : 15
+
+6.What is the C2 command the attacker uses to execute commands via cmd.exe?
+
+answer: shell
+
+7.What is the domain used by the malware to download another binary?
+answer: stash.mcgreedy.thm
+
+
+
+
+
+
+   
