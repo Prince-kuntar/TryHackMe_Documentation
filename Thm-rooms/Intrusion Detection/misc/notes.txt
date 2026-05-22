@@ -1,0 +1,49 @@
+#ROOM: Intrusion detection
+#Difficulty: medium
+
+#INTRODUCTION
+
+This room will serve as an introduction to the world of intrusion detection systems (IDS) and cyber evasion techniques. To complete this room, I will need to orchestrate a full system takeover whilst experimenting with evasion techniques from all stages of the cyber kill chain.
+
+#IDS INTRODUCTION
+
+Intrusion detection systems () are a tool commonly deployed to defend networks by automating the detection of suspicious activity. 
+There are two types: Signature-based and anomaly-based IDSs.
+
+Two signature-based IDS are attached to this demo; Suricata, a network-based IDS(NIDS), and WAZUH, a host-based IDS(HIDS). Both of these implement the same overarching signature detection methodology; however, their overall behaviour and the types of attacks that they can detect differ greatly.
+
+#NIDS
+
+network intrusion detection systems or NIDS monitor networks for malicious activity by checking packets for traces of activity associated with a wide variety of hostile or unwanted activity including:
+
+    Malware command and control
+    Exploitation tools
+    Scanning
+    Data exfiltration
+    Contact with phishing sites
+    Corporate policy violations
+    
+Transport Layer Security (TLS) (and its predecessor, SSL) negatively impacts the reliability of Network Intrusion Detection Systems (NIDS). Because TLS encrypts packet payloads in transit, a NIDS cannot inspect the application data for known attack signatures or malicious anomalies, severely blinding its detection capabilities.
+
+They can be deployed on either side of the firewall
+
+#reconnaissance and evasion basics
+
+evasion techniques in the context of the first stage of the cyber kill chain, reconnaissance.
+
+i run nmap -sV 10.48.181.73
+
+The above command does not make use of any evasion techniques and as a result.so it got flagged by the NIDS
+
+SuricatA detected that some packets contain the default nmap user agent and triggered an alert. Suricata also detected the unusual requests that nmap makes to trigger responses from applications targeted for service versioning. Wazuh also detected the 400 error codes made during the course of the scan.    
+
+##First evasion strategy
+
+Append http.useragent=<AGENT_HERE>,to change the default 'nmap' user agent can reduce detection chances.
+command looks something like this: nmap -sV --script-args hhtp.useragent="USER_AGENT_HERE" X.X.X.X
+
+Use whatismybrowser.com website to find a list of user agents i can choose from'
+
+#Further evasion techi=niques
+
+used nikto , a web scanner
