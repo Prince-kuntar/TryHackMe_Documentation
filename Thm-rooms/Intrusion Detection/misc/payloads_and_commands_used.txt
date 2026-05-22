@@ -1,0 +1,40 @@
+#Access token
+5LCFyqDxsxpwhK-aKGIDoikFyRdRKj2M7ikuamVXU2s3gAv2sUfNC5fBk4W8Uvr6IQJk-UbgO7f_xXFvlM37UsHHrcVjaoPiWFnZrl-gMJEL6pA0f4Sto-Cx9Hh0z19YThr4XLqwMph_VeeHT7JN32jaK6Kd9PsWSU_CubgWCbA
+
+#Task 4 commands
+
+nmap -sV 10.48.181.73
+
+##First evasion strategy
+nmap -sV --script-args http.useragent="Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Firefox/97.0.2543.108 Safari/537.36" 10.48.181.73 -v
+
+##futher reconnaisance evasion
+
+nikto -p 80,3000 -h 10.48.181.73
+nikto -p 3000 -h 10.48.181.73
+nikto -p 3000 -T 1 2 3 -h 10.48.181.73
+nikto -p3000 -T 1 2 3 -useragent <AGENT_HERE> -e 1 7 -h 10.48.181.73
+
+#OSINT
+
+Most forms of OSINT are affectivity undetectable and thus are extremely effective against IDS however, there are limitations as by its nature, OSINT relies on the target to disclose information which, may not happen if the target isn't publicly available or is designed to reduce data disclosure. A good example of this is the Wireguard (opens in new tab) VPN protocol which will not respond to queries unless they come from an authenticated source making, it invisible to third-party scan sites like shodan.
+
+In terms of information that can be gathered from third parties the following sources may be available as a starting point:
+
+    1.Information on the services active on a node can be acquired with tools like Shodan.
+    2.Additional resources may be found using search engines and advanced tags like :site, :filetype or :title.
+    3.Subdomains and related IP addresses may be found using online scanners or tools like recon-ng; a poorly chosen subdomain may also reveal information about the target even if it is protected behind a firewall.
+    4.ASN and WHOIS queries may reveal what provider is responsible for hosting the site.
+
+Information may also be gathered from the target site and related assets if they are publicly available including:
+
+    1.The technologies used to host the site may be acquired from error pages, file extensions, debug pages, or the server tag used in an HTTP response
+    2.Additional information on the tools used by the target may be available in job listings
+    
+
+
+
+#rulesets
+
+wget https://raw.githubusercontent.com/Jroo1053/GrafanaDirInclusion/master/src/exploit.py    
+
