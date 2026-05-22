@@ -1,0 +1,60 @@
+#ROOM: AOC2023
+#TITLE : Jingle bells, shadow spells
+#CATEGORY: Active directory
+
+#STORY
+AntarctiCrafts' technology stack was very specialised. It was primarily focused on cutting-edge climate research rather than prioritising robust cyber security measures.
+
+As the integration of the two infrastructure systems progresses, vulnerabilities begin to surface. While AntarctiCrafts' team displays remarkable expertise, their small size means they need to emphasise cyber security awareness.
+
+Throughout the room, you'll see that some users have too many permissions. We addressed most of these instances in the previous audit, but is everything now sorted out from the perspective of the HR user?
+
+#LEARNING OBJECTIVES
+    1.Understanding Active Directory
+    2.Introduction to Windows Hello for Business
+    3.Prerequisites for exploiting GenericWrite privilege
+    4.How the Shadow Credentials attack works
+    5.How to exploit the vulnerability
+    
+#Active Directory 101
+Active Directory (AD) is a system mainly used by businesses in Windows environments. It's a centralised authentication system. The Domain Controller (DC) is at the heart of AD and typically manages data storage, authentication, and authorisation within a domain.
+
+#WHfB
+Windows Hello for Business is a  modern and secure way to replace conventional password-based authentication. Instead of relying on traditional passwords, WHfB utilises cryptographic keys for user verification. Users on the Active Directory domain can access the using a PIN or biometrics connected to a pair of cryptographic keys: public and private. Those keys help to prove the identity of the entity to which they belong. The msDS-KeyCredentialLink is an attribute used by the Domain Controller to store the public key in WHfB for enrolling a new user device (such as a computer). In short, each user object in the Active Directory database will have its public key stored in this unique attribute.
+
+
+#enumeration
+
+Enumerating the Active Directory for the vulnerable permission is the first step to check if the current user has any write capabilities over another user on the AD.
+
+To achieve this, you can use the PowerShell script PowerView with the following command: Find-InterestingDomainAcl
+
+This functionality will list all the abusable privileges. It's then possible to filter for the current user: "hr".
+
+We are specifically looking for any write privilege since the goal is to overwrite the msDS-KeyCredentialLink
+
+after ruuning all the e=required commands in the payloads and commands.txt. we get the followimng output
+
+PS C:\Users\hr\Desktop> Find-InterestingDomainAcl -ResolveGuids | Where-Object { $_.IdentityReferenceName -eq "hr" } | Select-Object IdentityReferenceName, ObjectDN, ActiveDirectoryRights
+
+IdentityReferenceName ObjectDN                                                    ActiveDirectoryRights
+--------------------- --------                                                    ---------------------
+hr                    CN=vansprinkles,CN=Users,DC=AOC,DC=local ListChildren, ReadProperty, GenericWrite
+
+from the output i observed that the udser HR has tyhe genericWrite permission  over vansprinkles object visible on the CN attribute.Later compromise the account using the shadow credential attack. this is done by updating the msDS-KeyCredentialLink with a certificate.
+
+#Exploitation 
+nce we have a vulnerable user ,vansprinkles, i run the add command from Whisker to simulate the enrollment of a malicious device, updating the msDS-KeyCredentialLink attribute.
+
+The tool provide the certificate necessary to authenticate the impersonation of the vulnerable user with a command ready to be launched using Rubeus.
+
+copie the given command and voila i got the hash of the targetvuser vansprinkles.
+
+using the NTLM hash i used evil-winrm tool to logged as the vulnerable user using the pass-the-hash attack. basically without having to crack the password.
+
+looged successfully navigated to the administratir desktop directory where the flag was.
+
+
+
+
+    
