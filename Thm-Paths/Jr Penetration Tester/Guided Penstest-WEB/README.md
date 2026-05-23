@@ -139,6 +139,8 @@ suggested multiple potentially vulnerable attack surfaces.
 
 📸 **Screenshot:** `screenshots/gobuster.png`
 
+![gobuster directory enumeration for .php extension](Screenshots/gobuster.png)
+
 ---
 
 # 👤 User Registration
